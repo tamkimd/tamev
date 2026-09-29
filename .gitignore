@@ -1,0 +1,137 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+
+# Development tools & Caches
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.codegraph/
+docs/superpowers/
+
+# Editor & OS files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+*.swp
+*.swo
+*~
+:memory:.ses
+.idea/
+.vscode/
+
+# Local training runs, logs & temporary scratch
+runs/
+tmp/
+*.log
+logs/
+scratch/
+
+# Local model checkpoint weights & Apple packages
+*.safetensors
+*.bin
+*.mlpackage/
+*.mov
+*.pt
+*.onnx
+*.npz
+
+# Local exported models & Hugging Face staging directories.
+# `models/` also matches `decision_engine/models/`, which is Python source,
+# not weights -- the negation below puts that one directory back.
+models/
+!decision_engine/models/
+
+# Local-only hosts, scratch and internal tooling
+colab/
+colab.ipynb
+web_nano/
+experiments/
+.claude/
+
+# Heavy training datasets (canonical test/eval fixtures in data/ remain tracked)
+data/processed/train*.jsonl
+data/processed/game_decisions.jsonl
+data/processed/*balanced.jsonl
+data/processed/*probe.jsonl
+data/processed/*qwen4b*.jsonl
+
+opendesign/
+
+# Internal-only tooling: builds and uploads the Hugging Face repos, and the tests that
+# drive it. Kept on disk for the author's release workflow, deliberately not published.
+decision_engine/export/hf_hub_exporter.py
+scripts/prepare_all_hf_models.py
+scripts/export_multi_runtimes_to_hf.py
+scripts/push_to_hf.py
+scripts/make_card_banner.py
+tests/test_hf_standalone_model.py
+tests/test_hf_export_*.py
+tests/test_shipped_architecture_matches_config.py
+tests/test_hf_advertised_metrics_provenance.py
+
+# The public snapshot itself, and the internal agent/ops notes.
+publish-source/
+AGENT.md
+configs/prompts/universal_agent_directive.md
+
+# Research arm configs (mk_arm_cfg.py output). The shipped recipes are the tier
+# configs listed in the README and under configs/ in the committed tree.
+configs/*_t4.yaml
+configs/*_cpu.yaml
+configs/*_mps.yaml
+configs/*_v4*.yaml
+configs/*_w10*.yaml
+configs/*_ctx512*.yaml
+configs/nano_nokd.yaml
+
+# Research tests: they read corpora and gate files under runs/, which are not
+# distributed. Only the core published suite is negated back below.
+tests/test_*.py
+!tests/test_architecture.py
+!tests/test_data.py
+!tests/test_export.py
+!tests/test_serving.py
+!tests/test_teacher.py
+!tests/test_training.py
+
+# Internal benchmark/audit tooling whose inputs are not distributed.
+decision_engine/benchmark/kev_comparison.py
+tests/test_kev_comparison.py
+scripts/audit_hf_artifacts.py
+scripts/bench_latency_from_hub.py
+scripts/build_agent_responses.py
+scripts/build_full_canonical_dataset.py
+scripts/eval_public_benchmarks.py
+scripts/make_colab_bench_bundle.py

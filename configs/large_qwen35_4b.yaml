@@ -1,0 +1,73 @@
+model:
+  name: tamev_large_qwen35_4b
+  size_profile: large
+  model_type: incontext_causal
+  backbone: Qwen/Qwen3.5-4B
+  init_from: jaredpalmer/kev-4b
+  projection_dim: 256
+  temperature: 2.406
+  option_isolation: false
+teacher:
+  name: agent-teacher
+  provider: agent
+  model_path: agent-teacher
+  device: auto
+  temperature: 2.0
+  batch_size: 4
+  max_samples: 2000
+  cache_dir: runs/agent_teacher_cache.json
+  api_key: null
+dataset:
+  name: canonical
+  train_path: data/processed/train_qwen4b_probe.jsonl
+  val_path: data/processed/val_qwen4b.jsonl
+  test_path: data/processed/test.jsonl
+  max_ctx_len: 128
+  max_opt_len: 48
+  max_options: 4
+  eval_max_options: 4
+  format: jsonl
+training:
+  stage: distill_rl
+  epochs: 1
+  batch_size: 4
+  gradient_accumulation_steps: 1
+  learning_rate: 1.0e-04
+  weight_decay: 0.01
+  optimizer: adamw
+  kd_temperature: 2.0
+  kd_weight: 1.0
+  margin_gamma: 1.2
+  margin_weight: 0.5
+  brier_weight: 0.5
+  kl_anchor_weight: 0.1
+  device: auto
+  amp: true
+  output_dir: runs/tamev_large_qwen4b_large
+  seed: 42
+  early_stopping_patience: 3
+  early_stopping_metric: composite
+  early_stopping_min_delta: 0.001
+export:
+  precisions:
+  - bf16
+  - int8
+  targets:
+  - pytorch
+  - coreml
+  - mlx
+  onnx_opset: 17
+  output_dir: models/exported/large_qwen35_4b
+benchmark:
+  suite_path: data/processed/test.jsonl
+  output_dir: runs/benchmarks
+  batch_size: 16
+  num_permutations: 4
+  latency_warmup: 5
+  latency_reps: 20
+  remote_endpoint: null
+server:
+  host: 127.0.0.1
+  port: 8008
+  checkpoint_path: null
+  device: auto

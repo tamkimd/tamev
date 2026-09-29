@@ -1,0 +1,33 @@
+# .pre-commit-config.yaml
+# Pre-commit configuration with hard-pinned Ruff and ty upstream hooks
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.9
+    hooks:
+      - id: ruff-check
+        name: Run Ruff Lint
+        args: [--fix, --exit-non-zero-on-fix]
+        files: ^(decision_engine|tamev|tests|scripts)/
+      - id: ruff-format
+        name: Run Ruff Format Check
+        files: ^(decision_engine|tamev|tests|scripts)/
+
+  # Astral's `ty`. Declared locally rather than through `astral-sh/ty-pre-commit` because that
+  # repo's hook entry is `uv check --ty-version=...`, and `uv check` does not exist in released uv
+  # (verified: `uv check --help` -> "Usage: uv [OPTIONS] <COMMAND>"). Pinning the PyPI wheel instead
+  # keeps the hook self-contained: no uv on PATH, no network at hook start.
+  - repo: local
+    hooks:
+      - id: ty
+        name: Run ty Type Checker
+        entry: ty check
+        language: python
+        additional_dependencies: ["ty==0.0.84"]
+        # `ty check` needs the whole project, not a filename list: a change in one file can surface a
+        # diagnostic in another. The hook's own upstream config does the same. `[tool.ty.src]` in
+        # pyproject.toml narrows the checked tree to decision_engine/ and tamev/. Warnings (the
+        # torch.ao.quantization deprecation) are informational and must not block the commit.
+        pass_filenames: false
+        always_run: true
+        args: [--exit-zero-on-warning]

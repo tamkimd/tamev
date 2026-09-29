@@ -1,0 +1,81 @@
+model:
+  name: tamev_medium_qwen05b
+  size_profile: medium
+  model_type: causal
+  backbone: Qwen/Qwen2.5-0.5B
+  hidden_dim: 896
+  projection_dim: 256
+  temperature: 1.5
+  freeze_embeddings: false
+  freeze_backbone: false
+  pooling: mean
+  normalize: false
+teacher:
+  name: agent-teacher
+  provider: agent
+  model_path: agent-teacher
+  device: auto
+  temperature: 2.0
+  batch_size: 8
+  max_samples: 1500
+  cache_dir: runs/agent_teacher_cache.json
+  api_key: null
+dataset:
+  name: canonical
+  train_path: data/processed/train_merged.jsonl
+  val_path: data/processed/val.jsonl
+  test_path: data/processed/test.jsonl
+  max_ctx_len: 128
+  max_opt_len: 48
+  max_options: 8
+  format: jsonl
+training:
+  stage: distill_rl
+  epochs: 3
+  batch_size: 4
+  gradient_accumulation_steps: 4
+  learning_rate: 2.0e-05
+  weight_decay: 0.01
+  optimizer: adamw
+  kd_temperature: 2.0
+  kd_weight: 1.0
+  margin_gamma: 1.2
+  margin_weight: 0.5
+  brier_weight: 0.5
+  kl_anchor_weight: 0.1
+  device: auto
+  amp: true
+  output_dir: runs/tamev_medium_qwen05b
+  seed: 42
+export:
+  precisions:
+  - bf16
+  - int8
+  targets:
+  - onnx
+  - pytorch
+  onnx_opset: 17
+  output_dir: models/exported/medium_qwen05b
+benchmark:
+  suite_path: data/processed/test.jsonl
+  output_dir: runs/benchmarks
+  batch_size: 32
+  num_permutations: 4
+  latency_warmup: 10
+  latency_reps: 50
+  remote_endpoint: null
+server:
+  host: 127.0.0.1
+  port: 8008
+  checkpoint_path: null
+  device: cpu
+target:
+  snake_score: 500
+  tetris_score: 2000
+  top1_accuracy: 0.46
+  top3_accuracy: 0.75
+  max_ece: 0.05
+  max_brier: 0.65
+  max_latency_ms: 10.0
+
+

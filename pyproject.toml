@@ -1,0 +1,253 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tamev"
+version = "0.0.1"
+description = "Tiny, blazingly fast decision models that run on CPU and edge devices — an open-source Jev alternative and Kev alternative with permutation-invariant System One scoring, a TypeSafe-compatible decision API, and ONNX/Core ML/MLX/GGUF export."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+keywords = [
+    "tiny-models",
+    "small-language-models",
+    "cpu-inference",
+    "fast-inference",
+    "low-latency",
+    "edge-ai",
+    "edge-devices",
+    "on-device",
+    "offline-inference",
+    "raspberry-pi",
+    "decision-engine",
+    "jev-alternative",
+    "kev-alternative",
+    "typesafe",
+    "system-one",
+    "llm-routing",
+    "tool-calling",
+    "function-calling",
+    "permutation-invariant",
+    "knowledge-distillation",
+    "onnx",
+    "coreml",
+    "mlx",
+    "gguf",
+]
+authors = [
+    { name = "TAMEV Engineering Team" }
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "torch>=2.4.0",
+    "transformers>=4.40.0",
+    "numpy>=1.26.0",
+    # Imported at module level on the public path — `import tamev` reaches aiohttp through
+    # decision_engine/server/typesafe_server.py, and the teacher reaches httpx/tenacity through
+    # decision_engine/teacher/api_teacher.py. Declared here so a bare `pip install tamev` can import
+    # the package; without them both fail with ModuleNotFoundError unless something else pulled them in.
+    "aiohttp>=3.9.0",
+    "httpx>=0.27.0",
+    "tenacity>=8.2.0",
+    "onnx>=1.15.0",
+    "onnxruntime>=1.17.0",
+    "pyyaml>=6.0",
+    "pydantic>=2.0.0",
+    "rich>=13.0.0",
+    "typesafe-sdk>=0.7.0",
+    "peft>=0.21.0",
+    "gguf>=0.19.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "ruff==0.16.9",
+    "pre-commit>=3.5.0",
+]
+coreml = [
+    "coremltools>=8.0",
+]
+
+[project.scripts]
+tamev = "tamev.cli:main"
+tamev-serve = "tamev.serve:main"
+tamev-train = "scripts.train:main"
+tamev-benchmark = "scripts.train_and_benchmark_all:main"
+tamev-finetune = "scripts.finetune:main"
+
+[project.urls]
+# No public Git remote or PyPI package is published yet, so there is no Homepage/Repository
+# URL to declare here. Add them back once a real remote exists.
+"Hugging Face" = "https://huggingface.co/Tamkimd"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = [
+    "-ra",
+    "--strict-config",
+    "--strict-markers",
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    "__pycache__",
+    ".pytest_cache",
+    ".ruff_cache",
+    "colab.ipynb",  # Colab scratch notebook: shell magics are not Python
+]
+
+[tool.ruff.lint]
+select = [
+    "E",       # pycodestyle errors
+    "W",       # pycodestyle warnings
+    "F",       # pyflakes
+    "I",       # isort
+    "B",       # flake8-bugbear
+    "UP",      # pyupgrade
+    "SIM",     # flake8-simplify
+    "C4",      # flake8-comprehensions
+    "PIE",     # flake8-pie
+    "PERF",    # perflint
+    "PTH",     # flake8-use-pathlib
+    "RET",     # flake8-return
+    "RUF",     # ruff-specific
+    "FBT001",  # boolean-typed positional argument in function definition
+    "FBT002",  # boolean default positional argument in function definition
+    "FBT003",  # boolean positional value in function call
+    "PLR0917", # too-many-positional-arguments
+]
+ignore = [
+    "E501",    # line length is handled automatically by ruff format
+    "B008",    # do not perform function calls in argument defaults
+    "B904",    # raise ... from err
+    "B905",    # zip without strict
+    "PTH123",  # allow open()
+    "PTH118",  # allow os.path.join()
+    "RET505",  # allow elif after return
+    "RUF001",  # allow unicode emoji in CLI messages
+    "RUF012",  # allow mutable class attribute defaults in internal registries
+    "PERF203", # allow try-except in loops for file parsing
+    "SIM113",  # allow manual index incrementing in training loops
+]
+fixable = ["ALL"]
+
+[tool.ruff.lint.pylint]
+max-positional-args = 5
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+force-wrap-aliases = true
+known-first-party = ["decision_engine", "tamev"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "F401",
+    "E402",
+    "FBT001",
+    "FBT002",
+    "FBT003",
+    "PLR0917",
+    "PTH",
+    "RUF012",
+]
+"scripts/**" = [
+    "E402",
+    "PLR0917",
+    "FBT001",
+    "FBT002",
+    "FBT003",
+    "PTH",
+    "PERF401",
+    "PERF403",
+]
+"decision_engine/demos/**" = [
+    "E402",
+    "FBT001",
+    "FBT002",
+    "FBT003",
+    "PLR0917",
+]
+"decision_engine/server/**" = [
+    "E402",
+]
+"tamev/typesafe.py" = [
+    "F401",
+]
+"decision_engine/config/base.py" = ["FBT001", "FBT002", "PLR0917"]
+"decision_engine/benchmark/runner.py" = ["PLR0917"]
+"decision_engine/data/collator.py" = ["PLR0917"]
+"decision_engine/models/base.py" = ["PLR0917"]
+"decision_engine/models/pointer_head.py" = ["FBT001", "FBT002"]
+"decision_engine/models/tinybert_model.py" = ["FBT001", "FBT002"]
+"decision_engine/models/incontext_causal_model.py" = ["FBT001", "PTH"]
+"decision_engine/training/losses.py" = ["PLR0917", "FBT001"]
+"decision_engine/training/finetune.py" = ["PLR0917"]
+"decision_engine/training/trainer.py" = ["PLR0917"]
+"decision_engine/teacher/agent_teacher.py" = ["PLR0917"]
+"decision_engine/teacher/base.py" = ["PLR0917"]
+"decision_engine/server/typesafe_server.py" = ["PLR0917"]
+"decision_engine/utils/console.py" = ["FBT001", "FBT002"]
+"decision_engine/**/__init__.py" = ["F401"]
+"tamev/**/__init__.py" = ["F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+docstring-code-format = true
+skip-magic-trailing-comma = false
+
+[tool.ty.src]
+include = ["decision_engine", "tamev"]
+
+[tool.ty.rules]
+# ty's default rule set is much stricter than the pyright config it replaces, and the difference is
+# almost entirely stub quality, not code. Two families are silenced, for the same reasons pyright's
+# `reportOptional*` / `reportAttributeAccessIssue` / `reportCallIssue` were off:
+#
+#  1. Optional-narrowing on `X | None`: transformers' `AutoTokenizer.from_pretrained` is typed
+#     `... | None`, and `PreTrainedModel` attributes are `Tensor | Module`. Every use site narrows
+#     these by hand at runtime; ty cannot see it through the stubs.
+#  2. Untyped or absent stubs for optional heavy deps: `gguf`, `coremltools`, `mlx.core` are extra
+#     installs whose enums/classes come back as `None`-in-union, and torch's `nn.Module.__getattr__`
+#     returns bare `Tensor`, so `self.linear.weight` reads as not-callable.
+#
+# Everything else stays on: `possibly-unbound`, `undefined-name`, `unresolved-reference`,
+# `not-iterable`, `invalid-super`, index/bounds and the rest still fail the hook. That is the
+# pyright behaviour this replaces -- it too was effectively a possibly-unbound guard, which is what
+# caught the `s_w`/`s_l` bug in `decision_engine/training/losses.py`.
+"unresolved-attribute" = "ignore"
+"unresolved-import" = "ignore"
+"call-non-callable" = "ignore"
+"invalid-argument-type" = "ignore"
+"invalid-assignment" = "ignore"
+"invalid-method-override" = "ignore"
+"invalid-return-type" = "ignore"
+"no-matching-overload" = "ignore"
+"not-subscriptable" = "ignore"
+"unknown-argument" = "ignore"
+"unsupported-operator" = "ignore"
+
+[tool.setuptools.packages.find]
+include = ["decision_engine*", "tamev*", "scripts*"]
+exclude = ["data*", "runs*", "models*", "configs*"]

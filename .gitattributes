@@ -1,0 +1,38 @@
+# Set default behavior to automatically normalize line endings
+* text=auto eol=lf
+
+# Explicitly declare text files you want to always be normalized and converted
+# to native line endings on checkout
+*.py        text eol=lf diff=python
+*.json      text eol=lf
+*.jsonl     text eol=lf
+*.yaml      text eol=lf
+*.yml       text eol=lf
+*.md        text eol=lf
+*.jinja     text eol=lf
+*.toml      text eol=lf
+*.sh        text eol=lf
+*.txt       text eol=lf
+*.lock      text eol=lf
+
+# Declare files that will always have CRLF line endings on checkout
+*.bat       text eol=crlf
+
+# Denote all binary files
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.ico       binary
+*.safetensors binary
+*.pt        binary
+*.onnx      binary
+*.npz       binary
+*.bin       binary
+
+# Exclude dev and test assets from git export/archives
+.github/            export-ignore
+tests/              export-ignore
+.pre-commit-config.yaml export-ignore
+.gitignore          export-ignore
+.gitattributes      export-ignore

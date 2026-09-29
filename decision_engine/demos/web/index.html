@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TAMEV Studio — Real-Time Edge AI Decision Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07090e;
+      --bg-surface: #0d111a;
+      --card-bg: rgba(15, 20, 32, 0.82);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-border-glow: rgba(16, 185, 129, 0.25);
+      
+      --accent-green: #10b981;
+      --accent-green-glow: #05f292;
+      --accent-cyan: #06b6d4;
+      --accent-indigo: #6366f1;
+      --accent-purple: #8b5cf6;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'Fira Code', ui-monospace, SFMono-Regular, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 12% 18%, rgba(16, 185, 129, 0.07) 0%, transparent 45%),
+        radial-gradient(circle at 88% 82%, rgba(99, 102, 241, 0.07) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.03) 0%, transparent 60%);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      letter-spacing: -0.01em;
+    }
+
+    /* Top Navigation Header */
+    header {
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--card-border);
+      background: rgba(7, 9, 14, 0.88);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.35);
+      position: relative;
+    }
+
+    .brand-logo svg {
+      width: 20px;
+      height: 20px;
+      fill: #000;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-title {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(90deg, #ffffff 60%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-badge {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: var(--accent-green);
+      font-size: 10px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      padding: 1px 7px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Game Navigation Tabs */
+    .game-nav-tabs {
+      display: flex;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      padding: 3px;
+      border-radius: 12px;
+      gap: 4px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .tab-btn.active {
+      background: rgba(255, 255, 255, 0.09);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    /* Model Navigation Tabs */
+    .model-nav-tabs {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      padding: 3px 6px;
+      border-radius: 12px;
+      gap: 4px;
+    }
+
+    .model-nav-label {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--text-dim);
+      padding: 0 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .model-tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .model-tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .model-tab-btn.active {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #10b981;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+    }
+
+    .model-tab-sub {
+      font-size: 9px;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+      background: rgba(255, 255, 255, 0.06);
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+
+    .model-tab-btn.active .model-tab-sub {
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.2);
+    }
+
+    /* Header Tools */
+    .header-tools {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tool-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .tool-btn:hover {
+      background: rgba(255, 255, 255, 0.09);
+      color: var(--text-main);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .tool-btn.highlight {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: var(--accent-green);
+    }
+
+    .tool-btn.highlight:hover {
+      background: rgba(16, 185, 129, 0.2);
+    }
+
+    /* Architecture Banner */
+    .pipeline-bar {
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.06) 50%, rgba(99, 102, 241, 0.08) 100%);
+      border-bottom: 1px solid var(--card-border);
+      padding: 8px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .pipeline-steps {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pipe-node {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .pipe-node .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+    }
+
+    .pipe-node.success .dot {
+      background: var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green);
+    }
+
+    .pipe-arrow {
+      color: var(--text-dim);
+    }
+
+    /* Main Grid */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(420px, 480px) 1fr;
+      gap: 22px;
+      padding: 22px 24px;
+      max-width: 1560px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Left Stage */
+    .stage-column {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .game-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(16px);
+    }
+
+    .game-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      background: #04060b;
+      border: 2px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.9), 0 8px 24px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas#game-canvas {
+      display: block;
+    }
+
+    /* Canvas Overlays */
+    .canvas-hud-top {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .hud-chip {
+      background: rgba(10, 14, 24, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse-indicator {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green);
+      animation: pulse-ring 1.8s infinite;
+    }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.9; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.9; }
+    }
+
+    /* Controls Bar */
+    .controls-strip {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+      margin-top: 18px;
+    }
+
+    .btn-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .btn {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #021a10;
+      border: none;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45);
+      color: #000;
+    }
+
+    .btn-kbd {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      opacity: 0.75;
+    }
+
+    /* Speed and Settings Bar */
+    .settings-substrip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+
+    .speed-pills {
+      display: flex;
+      gap: 4px;
+    }
+
+    .speed-pill {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .speed-pill:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .speed-pill.active {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.35);
+      color: var(--accent-green);
+      font-weight: 600;
+    }
+
+    .radar-toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 11px;
+      font-family: var(--font-mono);
+    }
+
+    .radar-toggle-label input {
+      accent-color: var(--accent-green);
+      cursor: pointer;
+    }
+
+    /* Hardware Tier Matrix Widget */
+    .tier-matrix-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px 18px;
+      backdrop-filter: blur(16px);
+    }
+
+    .tier-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .tier-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tier-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      font-family: var(--font-mono);
+    }
+
+    .tier-table th {
+      text-align: left;
+      color: var(--text-dim);
+      padding: 4px 6px;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .tier-table td {
+      padding: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+    }
+
+    .tier-table tr.active-tier {
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    .tier-table tr.active-tier td {
+      color: var(--accent-green);
+      font-weight: 600;
+    }
+
+    /* Right Telemetry Column */
+    .telemetry-column {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* 4-Stat Metric Grid */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .metric-tile {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    .metric-tile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .metric-subtag {
+      font-size: 9px;
+      font-family: var(--font-mono);
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-dim);
+    }
+
+    .metric-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      letter-spacing: -0.02em;
+    }
+
+    .metric-value.highlight-green {
+      color: var(--accent-green);
+      text-shadow: 0 0 16px rgba(16, 185, 129, 0.35);
+    }
+
+    .metric-value.highlight-indigo {
+      color: #818cf8;
+    }
+
+    .metric-sparkline-canvas {
+      width: 100%;
+      height: 24px;
+      margin-top: 6px;
+      display: block;
+    }
+
+    /* Decision Probability Bars Card */
+    .decision-probs-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 18px 20px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .card-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-main);
+    }
+
+    .badge-pill {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .badge-pill.green {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--accent-green);
+    }
+
+    .probs-list {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .prob-item {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      transition: all 0.15s ease;
+    }
+
+    .prob-item.winner {
+      background: rgba(16, 185, 129, 0.06);
+      border-color: rgba(16, 185, 129, 0.28);
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.08);
+    }
+
+    .prob-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .prob-name-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    .prob-item.winner .action-icon {
+      background: var(--accent-green);
+      color: #000;
+    }
+
+    .prob-action-name {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .prob-stats {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .prob-pct {
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .prob-item.winner .prob-pct {
+      color: var(--accent-green-glow);
+    }
+
+    .prob-track {
+      height: 7px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .prob-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #06b6d4);
+      border-radius: 4px;
+      transition: width 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .prob-fill.winner {
+      background: linear-gradient(90deg, #10b981 0%, #05f292 100%);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+
+    /* Decision Context Stream Card */
+    .context-stream-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 18px 20px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .context-header-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .context-box {
+      background: rgba(4, 6, 12, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: #94a3b8;
+      max-height: 190px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-dialog {
+      background: #0d121f;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      max-width: 680px;
+      width: 100%;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(16, 185, 129, 0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: modal-enter 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modal-enter {
+      from { transform: scale(0.96) translateY(10px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 20px;
+      padding: 4px;
+      line-height: 1;
+    }
+
+    .modal-close-btn:hover {
+      color: #fff;
+    }
+
+    .modal-body {
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .code-preview-block {
+      background: #04060b;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #cbd5e1;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      max-height: 300px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1080px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+      .metric-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="brand-section">
+      <div class="brand-logo-container">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title-row">
+            <span class="brand-title">TAMEV STUDIO</span>
+            <span class="brand-badge">⚡️ System-One Core</span>
+          </div>
+          <span class="brand-subtitle">Real-Time Decoupled Edge Decision Engine</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center Game Navigation -->
+    <div class="game-nav-tabs">
+      <button class="tab-btn active" id="tab-snake" onclick="switchGame('snake')">
+        <span>🐍</span>
+        <span>Snake Navigation</span>
+      </button>
+      <button class="tab-btn" id="tab-tetris" onclick="switchGame('tetris')">
+        <span>🧱</span>
+        <span>Tetris Dynamic Stacking</span>
+      </button>
+    </div>
+
+    <!-- Locked Ultra-Fast Model Indicator -->
+    <div class="model-fast-indicator" id="model-fast-indicator" title="Locked to fastest model: TAMEV-Nano-TinyBERT (14.4M params • Sub-2ms CPU inference)">
+      <span class="model-fast-badge">⚡️ FASTEST</span>
+      <span class="model-fast-name">TAMEV-Nano-TinyBERT (14.4M)</span>
+    </div>
+
+    <!-- Header Diagnostic Tools -->
+    <div class="header-tools">
+      <button class="tool-btn highlight" onclick="openInvarianceModal()">
+        <span>⚖️</span>
+        <span>Zero-Drift Audit</span>
+      </button>
+      <button class="tool-btn" onclick="openBenchmarkModal()">
+        <span>⚡️</span>
+        <span>Benchmark</span>
+      </button>
+      <button class="tool-btn" onclick="openSnippetModal()">
+        <span>📋</span>
+        <span>Export API</span>
+      </button>
+      <button class="tool-btn" id="btn-sound-toggle" onclick="toggleSound()">
+        <span id="sound-icon">🔇</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Interactive Architecture Pipeline Indicator -->
+  <div class="pipeline-bar">
+    <div class="pipeline-steps">
+      <div class="pipe-node success">
+        <span class="dot"></span>
+        <span>State Context</span>
+      </div>
+      <span class="pipe-arrow">──►</span>
+      <div class="pipe-node success">
+        <span class="dot"></span>
+        <span id="pipe-backbone-text">Decoupled TinyBERT (14.4M)</span>
+      </div>
+      <span class="pipe-arrow">──►</span>
+      <div class="pipe-node success">
+        <span class="dot"></span>
+        <span>Bilinear Symmetric Head</span>
+      </div>
+      <span class="pipe-arrow">──►</span>
+      <div class="pipe-node success">
+        <span class="dot"></span>
+        <span>Calibrated Softmax (ECE &lt; 0.03)</span>
+      </div>
+    </div>
+    <div style="display: flex; gap: 14px; align-items: center;">
+      <span>Zero Autoregressive Token Generation</span>
+      <span style="color: var(--accent-green);">Permutation Drift: 0.00000000</span>
+    </div>
+  </div>
+
+  <!-- Main Grid Workspace -->
+  <main>
+    <!-- Left Stage: Game Canvas & Physical Controls -->
+    <section class="stage-column">
+      <div class="game-card">
+        <div class="canvas-wrapper">
+          <canvas id="game-canvas" width="400" height="400"></canvas>
+          
+          <div class="canvas-hud-top">
+            <div class="hud-chip">
+              <span class="pulse-indicator"></span>
+              <span id="hud-status-text">AI ACTIVE</span>
+            </div>
+            <div class="hud-chip">
+              <span>SCORE</span>
+              <span id="hud-score-val" style="color: var(--accent-green); font-weight: 700;">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls Bar -->
+        <div class="controls-strip">
+          <div class="btn-row">
+            <button class="btn btn-primary" id="btn-play-pause" onclick="togglePlayPause()">
+              <span id="play-icon">⏸</span>
+              <span id="play-label">Pause</span>
+              <span class="btn-kbd">Space</span>
+            </button>
+            <button class="btn" id="btn-step" onclick="stepOnce()">
+              <span>⏭</span>
+              <span>Step 1 Tick</span>
+              <span class="btn-kbd">S</span>
+            </button>
+            <button class="btn" id="btn-reset" onclick="resetGame()">
+              <span>🔄</span>
+              <span>Reset</span>
+              <span class="btn-kbd">R</span>
+            </button>
+          </div>
+
+          <!-- Speed & Radar Settings -->
+          <div class="settings-substrip">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="color: var(--text-dim); font-size: 11px; font-weight: 600;">SPEED:</span>
+              <div class="speed-pills">
+                <button class="speed-pill" onclick="setSpeed(180, this)">Slow</button>
+                <button class="speed-pill active" onclick="setSpeed(80, this)">Normal</button>
+                <button class="speed-pill" onclick="setSpeed(35, this)">Fast</button>
+                <button class="speed-pill" onclick="setSpeed(15, this)">Hyper</button>
+              </div>
+            </div>
+
+            <label class="radar-toggle-label">
+              <input type="checkbox" id="chk-danger-radar" checked onchange="toggleRadar(this.checked)">
+              <span>Danger Radar</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hardware Tier Matrix Widget -->
+      <div class="tier-matrix-card">
+        <div class="tier-card-header">
+          <div class="tier-title">
+            <span>📐</span>
+            <span>TAMEV Hardware &amp; Tier Deployment Matrix</span>
+          </div>
+          <span id="active-tier-indicator" style="font-size: 10px; color: var(--accent-green); font-family: var(--font-mono);">Active: Nano (14.39M)</span>
+        </div>
+        <table class="tier-table">
+          <thead>
+            <tr>
+              <th>Tier</th>
+              <th>Backbone</th>
+              <th>Params</th>
+              <th>INT8</th>
+              <th>CPU Latency</th>
+              <th>Targets</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="active-tier" id="tier-row-nano" style="cursor: pointer;" onclick="switchModel('nano')">
+              <td>▶ Nano</td>
+              <td>TinyBERT-4L</td>
+              <td>14.39M</td>
+              <td>14.4 MB</td>
+              <td>1.8 ms</td>
+              <td>Watch / Pi / Edge</td>
+            </tr>
+            <tr id="tier-row-micro" style="cursor: pointer;" onclick="switchModel('micro')">
+              <td>▶ Micro</td>
+              <td>MiniLM-L6</td>
+              <td>22.76M</td>
+              <td>22.7 MB</td>
+              <td>2.4 ms</td>
+              <td>Mobile / iOS / ANE</td>
+            </tr>
+            <tr id="tier-row-small" style="cursor: pointer;" onclick="switchModel('small')">
+              <td>▶ Small</td>
+              <td>ModernBERT</td>
+              <td>149M</td>
+              <td>149 MB</td>
+              <td>4.2 ms</td>
+              <td>Laptop / Desktop</td>
+            </tr>
+            <tr id="tier-row-agent_distilled" style="cursor: pointer;" onclick="switchModel('agent_distilled')">
+              <td>▶ Agent</td>
+              <td>Agent-Distilled</td>
+              <td>14.39M</td>
+              <td>14.4 MB</td>
+              <td>1.8 ms</td>
+              <td>Coding Agent Distill</td>
+            </tr>
+            <tr id="tier-row-medium">
+              <td>Medium</td>
+              <td>Qwen3.5-0.8B</td>
+              <td>873M</td>
+              <td>873 MB</td>
+              <td>8.5 ms</td>
+              <td>Edge Server / MPS</td>
+            </tr>
+            <tr id="tier-row-large">
+              <td>Large</td>
+              <td>Qwen3.5-4B</td>
+              <td>4.66B</td>
+              <td>4.6 GB</td>
+              <td>23.0 ms</td>
+              <td>Workstation / CUDA</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Right Column: Decision Intelligence & Telemetry -->
+    <section class="telemetry-column">
+      
+      <!-- 4-Stat Metric Grid -->
+      <div class="metric-grid">
+        <div class="metric-tile">
+          <div class="metric-tile-header">
+            <span class="metric-label">Model Latency</span>
+            <span class="metric-subtag" id="metric-device" style="cursor: pointer; user-select: none; transition: all 0.15s ease;" onclick="toggleDevice()" title="Click to toggle CPU / MPS acceleration">CPU ⇄</span>
+          </div>
+          <div class="metric-value-row">
+            <span class="metric-value highlight-green" id="metric-latency">-- ms</span>
+          </div>
+          <canvas class="metric-sparkline-canvas" id="sparkline-canvas"></canvas>
+          <div style="height: 4px; width: 100%; display: flex; border-radius: 2px; overflow: hidden; margin-top: 6px; background: rgba(255,255,255,0.06);">
+            <div id="bar-tok" style="width: 0%; transition: width 0.15s ease; background: var(--accent-cyan);" title="Tokenize"></div>
+            <div id="bar-fwd" style="width: 0%; transition: width 0.15s ease; background: var(--accent-green);" title="Neural Forward"></div>
+            <div id="bar-soft" style="width: 0%; transition: width 0.15s ease; background: var(--accent-amber);" title="Softmax"></div>
+          </div>
+          <div id="latency-breakdown" style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px; font-size: 9px; font-family: var(--font-mono); color: var(--text-dim);">
+            <span id="sub-tok" style="color: var(--accent-cyan);" title="Tokenize & Collate">Tok: --</span>
+            <span id="sub-fwd" style="color: var(--accent-green);" title="Backbone + Bilinear Head">Fwd: --</span>
+            <span id="sub-soft" style="color: var(--accent-amber);" title="Calibrated Softmax">Soft: --</span>
+          </div>
+        </div>
+
+        <div class="metric-tile">
+          <div class="metric-tile-header">
+            <span class="metric-label">Decision Freq</span>
+            <span class="metric-subtag">Measured</span>
+          </div>
+          <div class="metric-value-row">
+            <span class="metric-value" id="metric-fps">-- /s</span>
+          </div>
+          <div style="font-size: 10px; color: var(--text-dim); margin-top: 6px; font-family: var(--font-mono);">
+            Zero token generation wait
+          </div>
+        </div>
+
+        <div class="metric-tile">
+          <div class="metric-tile-header">
+            <span class="metric-label">Confidence (ECE)</span>
+            <span class="metric-subtag">&lt; 0.03</span>
+          </div>
+          <div class="metric-value-row">
+            <span class="metric-value highlight-indigo" id="metric-confidence">--%</span>
+          </div>
+          <div style="font-size: 10px; color: var(--text-dim); margin-top: 6px; font-family: var(--font-mono);">
+            Calibrated softmax distribution
+          </div>
+        </div>
+
+        <div class="metric-tile">
+          <div class="metric-tile-header">
+            <span class="metric-label">Position Drift</span>
+            <span class="metric-subtag">Invariant</span>
+          </div>
+          <div class="metric-value-row">
+            <span class="metric-value highlight-green" id="metric-drift">--</span>
+          </div>
+          <div style="font-size: 10px; color: var(--text-dim); margin-top: 6px; font-family: var(--font-mono);">
+            Exact mathematical symmetry
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-Time Action Probabilities -->
+      <div class="decision-probs-card">
+        <div class="card-header-row">
+          <div class="card-title-group">
+            <span class="card-title">Real-Time Action Probabilities</span>
+            <span class="badge-pill green" id="badge-chosen-action">INITIALIZING...</span>
+          </div>
+          <div style="font-size: 11px; font-family: var(--font-mono); color: var(--text-dim);">
+            Tokens: <span id="metric-tokens" style="color: var(--text-main);">--</span>
+          </div>
+        </div>
+        <div class="probs-list" id="probs-container">
+          <!-- Dynamically populated by app.js -->
+        </div>
+      </div>
+
+      <!-- Decision Context Stream -->
+      <div class="context-stream-card">
+        <div class="card-header-row">
+          <div class="card-title-group">
+            <span class="card-title">System One Decision Context (TAMEV Input Stream)</span>
+          </div>
+          <div class="context-header-tools">
+            <button class="tool-btn" style="padding: 4px 8px; font-size: 11px;" onclick="copyContext()">
+              <span>📋 Copy State</span>
+            </button>
+          </div>
+        </div>
+        <pre class="context-box" id="state-text">Waiting for game loop initialization...</pre>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Modal: Permutation Invariance Zero-Drift Audit -->
+  <div class="modal-overlay" id="modal-invariance">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>⚖️</span>
+          <span>Zero Position Bias Mathematical Audit</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modal-invariance')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+          Autoregressive LLMs (e.g. GPT-4o, Claude 3.5) suffer from catastrophic position bias (15-30% probability drift when option order is shuffled). 
+          <strong>TAMEV’s decoupled symmetric bilinear pointer head guarantees exact 0.00000000 permutation invariance.</strong>
+        </p>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 12px; font-weight: 600; color: var(--text-main);">LIVE TEST RESULTS (10 RANDOM PERMUTATIONS):</span>
+          <button class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;" onclick="runInvarianceTest()">
+            <span>▶ Run Permutation Audit</span>
+          </button>
+        </div>
+
+        <div id="invariance-results-table" style="max-height: 240px; overflow-y: auto;">
+          <table class="tier-table">
+            <thead>
+              <tr>
+                <th>Run</th>
+                <th>Permuted Candidate Order</th>
+                <th>Chosen Action</th>
+                <th>Absolute Drift (Δ)</th>
+                <th>Latency</th>
+              </tr>
+            </thead>
+            <tbody id="invariance-tbody">
+              <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-dim); padding: 16px;">
+                  Click "Run Permutation Audit" to test 10 random orderings live on the current state.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('modal-invariance')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Speed Benchmark -->
+  <div class="modal-overlay" id="modal-benchmark">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>⚡️</span>
+          <span>On-Device Decision Speed Benchmark</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modal-benchmark')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+          Executes 25 continuous in-process decision passes on your active device to verify SLA and peak throughput QPS.
+        </p>
+        
+        <div style="display: flex; justify-content: flex-end;">
+          <button class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;" onclick="runSpeedBenchmark()">
+            <span>▶ Benchmark 25 Passes</span>
+          </button>
+        </div>
+
+        <div id="benchmark-results" style="display: none; flex-direction: column; gap: 12px;">
+          <div class="metric-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="metric-tile">
+              <span class="metric-label">p50 Latency</span>
+              <span class="metric-value highlight-green" id="bench-p50">-- ms</span>
+            </div>
+            <div class="metric-tile">
+              <span class="metric-label">p95 Latency</span>
+              <span class="metric-value" id="bench-p95">-- ms</span>
+            </div>
+            <div class="metric-tile">
+              <span class="metric-label">Throughput QPS</span>
+              <span class="metric-value highlight-indigo" id="bench-qps">-- /s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('modal-benchmark')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: API Snippet Export -->
+  <div class="modal-overlay" id="modal-snippet">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>📋</span>
+          <span>Developer Integration Snippets</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modal-snippet')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size: 12px; font-weight: 600; color: var(--text-muted);">cURL Request (/v1/systemone):</div>
+        <pre class="code-preview-block" id="snippet-curl">Loading snippet...</pre>
+        <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-top: 10px;">Python TypeSafeClient:</div>
+        <pre class="code-preview-block" id="snippet-python">Loading snippet...</pre>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="copyCurlSnippet()">Copy cURL</button>
+        <button class="btn" onclick="closeModal('modal-snippet')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

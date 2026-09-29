@@ -1,0 +1,93 @@
+# Derived from configs/small_ordtext_mps.yaml; only dataset.train_path, dataset.val_path and training.output_dir differ.
+model:
+  name: tamev_small_gte_modernbert
+  size_profile: small
+  model_type: encoder
+  backbone: runs/research/gte_modernbert_base_fp32
+  hidden_dim: null
+  projection_dim: 256
+  temperature: 2.0
+  freeze_embeddings: false
+  pooling: mean
+  normalize: false
+teacher:
+  name: agent-teacher
+  provider: agent
+  model_path: agent-teacher
+  device: cuda
+  temperature: 2.0
+  batch_size: 8
+  max_samples: 1500
+  cache_dir: runs/agent_teacher_cache.json
+  api_key: null
+dataset:
+  name: canonical
+  # The only variable vs the shipped small recipe (configs/small_w10_t4.yaml): the score cells'
+  # option text, plus the corrected-agnews labels. 4,175 of the 19,999 gate rows (20.9%) move from
+  # synthetic 'Rating 0..4' to ordinal strings ('1 star - terrible' .. '5 stars - excellent');
+  # those are exactly the K=5 cells, and only their option strings change (labels and row ids are
+  # byte-identical). The agnews is_* cells are relabelled from each article's own topic row too.
+  # Grade on BOTH instruments -- test_v3_core_v4 (frozen synthetic text) and test_v3_core_ordtext_v4
+  # (real option text, the serving contract); a win on one that loses the other is not a win.
+  train_path: runs/research/hf_v2/train_v3_mixed_v4.jsonl
+  val_path: runs/research/hf_v2/val_v3_select_mixed_v4.jsonl
+  test_path: runs/research/hf_v2/test_v3_core_ordtext_v4.jsonl
+  max_ctx_len: 128
+  max_opt_len: 48
+  max_options: null
+  format: jsonl
+training:
+  stage: distill_rl
+  epochs: 3
+  batch_size: 8  # ponytail: full-K batches (max_options: null), 8x4 accum; T4 16GB
+  gradient_accumulation_steps: 4
+  learning_rate: 4.0e-05
+  weight_decay: 0.01
+  optimizer: adamw
+  kd_temperature: 2.0
+  kd_weight: 1.0
+  margin_gamma: 1.2
+  margin_weight: 0.5
+  brier_weight: 0.5
+  kl_anchor_weight: 0.1
+  device: mps
+  output_dir: runs/research/small_ordtext_mixed
+  seed: 42
+  amp: true
+  # ~35 min/epoch on a free T4 and the free tier preempts mid-run: keep a resume checkpoint every
+  # ~1000 steps (~7 min) so a preemption costs one interval, not the epoch.
+  resume: true
+  resume_every: 1000
+export:
+  precisions:
+  - fp32
+  - bf16
+  - int8
+  targets:
+  - onnx
+  - pytorch
+  onnx_opset: 17
+  output_dir: models/exported/small_modernbert
+benchmark:
+  suite_path: runs/research/hf_v2/test_v3_core_ordtext_v4.jsonl
+  output_dir: runs/benchmarks
+  batch_size: 32
+  num_permutations: 4
+  latency_warmup: 10
+  latency_reps: 50
+  remote_endpoint: null
+server:
+  host: 127.0.0.1
+  port: 8008
+  checkpoint_path: null
+  device: cpu
+target:
+  snake_score: 500
+  tetris_score: 2000
+  top1_accuracy: 0.46
+  top3_accuracy: 0.75
+  max_ece: 0.05
+  max_brier: 0.65
+  max_latency_ms: 10.0
+
+
